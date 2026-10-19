@@ -1,0 +1,58 @@
+{
+  "name": "Front Desk — booking follow-up",
+  "nodes": [
+    {
+      "parameters": { "httpMethod": "POST", "path": "frontdesk-followup", "responseMode": "responseNode", "options": {} },
+      "name": "Booking created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "frontdesk-followup"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            { "leftValue": "={{ $json.headers['x-frontdesk-secret'] }}", "rightValue": "={{ $env.FRONTDESK_SECRET }}", "operator": { "type": "string", "operation": "equals" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Shared secret ok?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $input.first().json.body;\nreturn [{ json: {\n  followUpId: b.followUpId,\n  customerMessage: b.customerMessage,\n  contractorTask: b.contractorTask,\n  startAt: b.startAt,\n  subject: `Booking confirmed (${b.bookingId})`\n} }];"
+      },
+      "name": "Draft confirmation + task",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, -80]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ { ok: true, followUpId: $json.followUpId } }}", "options": {} },
+      "name": "Ack",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [660, -80]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ { ok: false } }}", "options": { "responseCode": 401 } },
+      "name": "Reject",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [440, 120]
+    }
+  ],
+  "connections": {
+    "Booking created": { "main": [[{ "node": "Shared secret ok?", "type": "main", "index": 0 }]] },
+    "Shared secret ok?": { "main": [[{ "node": "Draft confirmation + task", "type": "main", "index": 0 }], [{ "node": "Reject", "type": "main", "index": 0 }]] },
+    "Draft confirmation + task": { "main": [[{ "node": "Ack", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

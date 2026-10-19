@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Leo avatar">
+<rect width="128" height="128" rx="28" fill="#cffafe"/>
+<path d="M20 128c4-24 22-36 44-36s40 12 44 36z" fill="#0891b2"/>
+<rect x="56" y="80" width="16" height="14" fill="#c68b59"/>
+<ellipse cx="64" cy="62" rx="24" ry="27" fill="#c68b59"/>
+<path d="M36 52c2-18 14-26 28-26s27 8 28 26c-10-8-46-8-56 0z" fill="#1f2937"/>
+<circle cx="54" cy="64" r="3" fill="#0f172a"/><circle cx="74" cy="64" r="3" fill="#0f172a"/>
+<path d="M56 76c5 4 11 4 16 0" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+
+</svg>

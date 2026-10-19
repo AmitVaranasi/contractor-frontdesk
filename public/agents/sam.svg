@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Sam avatar">
+<rect width="128" height="128" rx="28" fill="#dbeafe"/>
+<path d="M20 128c4-24 22-36 44-36s40 12 44 36z" fill="#2563eb"/>
+<rect x="56" y="80" width="16" height="14" fill="#e0ac69"/>
+<ellipse cx="64" cy="62" rx="24" ry="27" fill="#e0ac69"/>
+<path d="M36 54c0-18 12-28 28-28s28 10 28 28c-8-6-48-6-56 0z" fill="#78350f"/>
+<circle cx="54" cy="64" r="3" fill="#0f172a"/><circle cx="74" cy="64" r="3" fill="#0f172a"/>
+<path d="M56 76c5 4 11 4 16 0" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M34 64c0-18 13-30 30-30s30 12 30 30" fill="none" stroke="#1e293b" stroke-width="4"/><rect x="28" y="60" width="9" height="16" rx="4" fill="#1e293b"/><rect x="91" y="60" width="9" height="16" rx="4" fill="#1e293b"/><path d="M96 76c0 10-8 16-20 16" fill="none" stroke="#1e293b" stroke-width="3"/><circle cx="74" cy="92" r="3" fill="#1e293b"/>
+</svg>

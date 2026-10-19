@@ -1,0 +1,37 @@
+{
+  "name": "Front desk agent LLM",
+  "description": "Role-scoped JSON reasoning step for the five front-desk agents. The app server owns tools and state; this pipeline only answers.",
+  "source": "chat_1",
+  "components": [
+    {
+      "id": "chat_1",
+      "provider": "chat",
+      "name": "Chat",
+      "config": { "hideForm": true, "mode": "Source", "parameters": {}, "type": "chat" },
+      "ui": { "position": { "x": 20, "y": 200 }, "measured": { "width": 150, "height": 66 }, "nodeType": "default", "formDataValid": true }
+    },
+    {
+      "id": "llm_anthropic_1",
+      "provider": "llm_anthropic",
+      "name": "Anthropic",
+      "config": {
+        "profile": "claude-opus-latest",
+        "claude-opus-latest": { "apikey": "${ROCKETRIDE_ANTHROPIC_KEY}" },
+        "parameters": {}
+      },
+      "input": [{ "lane": "questions", "from": "chat_1" }],
+      "ui": { "position": { "x": 240, "y": 200 }, "measured": { "width": 150, "height": 66 }, "nodeType": "default", "formDataValid": true }
+    },
+    {
+      "id": "response_answers_1",
+      "provider": "response_answers",
+      "name": "Return Answers",
+      "config": { "laneName": "answers" },
+      "input": [{ "lane": "answers", "from": "llm_anthropic_1" }],
+      "ui": { "position": { "x": 460, "y": 200 }, "measured": { "width": 150, "height": 66 }, "nodeType": "default", "formDataValid": true }
+    }
+  ],
+  "project_id": "735539f0-8b45-4f53-bd06-5303418a2541",
+  "viewport": { "x": 0, "y": 0, "zoom": 1 },
+  "version": 1
+}

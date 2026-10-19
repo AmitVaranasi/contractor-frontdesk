@@ -1,0 +1,97 @@
+{
+  "name": "Front desk agent LLM (via Flatkey)",
+  "description": "Same role-scoped JSON step, routed through the Flatkey unified model API with RocketRide's OpenAI-compatible node. Used when no Anthropic key is available.",
+  "source": "chat_1",
+  "components": [
+    {
+      "id": "chat_1",
+      "provider": "chat",
+      "name": "Chat",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "chat"
+      },
+      "ui": {
+        "position": {
+          "x": 20,
+          "y": 200
+        },
+        "measured": {
+          "width": 150,
+          "height": 66
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "llm_openai_api_1",
+      "provider": "llm_openai_api",
+      "name": "Flatkey (OpenAI-compatible)",
+      "config": {
+        "profile": "custom",
+        "custom": {
+          "model": "${ROCKETRIDE_FLATKEY_MODEL}",
+          "base_url": "${FLATKEY_BASE_URL}",
+          "apikey": "${ROCKETRIDE_FLATKEY_KEY}",
+          "modelTotalTokens": 200000,
+          "modelOutputTokens": 4000
+        },
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ],
+      "ui": {
+        "position": {
+          "x": 240,
+          "y": 200
+        },
+        "measured": {
+          "width": 150,
+          "height": 66
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "response_answers_1",
+      "provider": "response_answers",
+      "name": "Return Answers",
+      "config": {
+        "laneName": "answers"
+      },
+      "input": [
+        {
+          "lane": "answers",
+          "from": "llm_openai_api_1"
+        }
+      ],
+      "ui": {
+        "position": {
+          "x": 460,
+          "y": 200
+        },
+        "measured": {
+          "width": 150,
+          "height": 66
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    }
+  ],
+  "project_id": "b2bdb4ed-fffd-45d6-8d03-43b419b8698c",
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "version": 1
+}

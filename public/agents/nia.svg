@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Nia avatar">
+<rect width="128" height="128" rx="28" fill="#d1fae5"/>
+<path d="M20 128c4-24 22-36 44-36s40 12 44 36z" fill="#059669"/>
+<rect x="56" y="80" width="16" height="14" fill="#8d5524"/>
+<ellipse cx="64" cy="62" rx="24" ry="27" fill="#8d5524"/>
+<circle cx="40" cy="44" r="10" fill="#111827"/><circle cx="52" cy="34" r="10" fill="#111827"/><circle cx="64" cy="30" r="10" fill="#111827"/><circle cx="76" cy="34" r="10" fill="#111827"/><circle cx="88" cy="44" r="10" fill="#111827"/><circle cx="36" cy="58" r="10" fill="#111827"/><circle cx="92" cy="58" r="10" fill="#111827"/>
+<circle cx="54" cy="64" r="3" fill="#0f172a"/><circle cx="74" cy="64" r="3" fill="#0f172a"/>
+<path d="M56 76c5 4 11 4 16 0" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+
+</svg>

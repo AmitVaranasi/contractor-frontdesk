@@ -1,0 +1,47 @@
+{
+  "name": "contractor-frontdesk",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "security": "npm run security:audit; npm run security:snyk; npm run security:snyk-code",
+    "security:audit": "npm audit --json > evidence/npm-audit.json || true",
+    "security:snyk": "snyk test --json > evidence/snyk-deps.json || true",
+    "security:snyk-code": "snyk code test --json > evidence/snyk-code.json || true",
+    "masky:setup": "tsx --env-file=.env.local scripts/masky-setup.ts",
+    "phone:setup": "tsx --env-file=.env.local scripts/phone-setup.ts",
+    "tunnel": "cloudflared tunnel --url http://localhost:3000",
+    "rocketride:check": "tsx --env-file=.env.local scripts/rocketride-check.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "@celestoai/sdk": "^0.1.6",
+    "@vapi-ai/web": "^3.0.0",
+    "next": "16.4.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "rocketride": "^1.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^4.1.12"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}
