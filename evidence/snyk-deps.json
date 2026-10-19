@@ -1,0 +1,31 @@
+{
+  "dependencyCount": 116,
+  "displayTargetFile": "package-lock.json",
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "hasUnknownVersions": false,
+  "ignoreSettings": {
+    "adminOnly": false,
+    "autoApproveIgnores": false,
+    "disregardFilesystemIgnores": false,
+    "reasonRequired": false
+  },
+  "isPrivate": true,
+  "licensesPolicy": {
+    "orgLicenseRules": null,
+    "severities": null
+  },
+  "ok": true,
+  "org": "5026e5a4-6c1c-4910-813f-6eeb3457f3e8",
+  "packageManager": "npm",
+  "path": "/Users/amitmaheshwarvaranasi/Projects/New project/contractor-frontdesk",
+  "policy": "",
+  "projectName": "contractor-frontdesk",
+  "summary": "No known vulnerabilities",
+  "targetFile": "",
+  "uniqueCount": 0,
+  "vulnerabilities": []
+}

@@ -100,7 +100,7 @@ export async function ctoRunRepoChecks(): Promise<{ evidenceId: string; status: 
     const runs = await runInSandbox(
       [
         { label: "git clone", command: `git clone --depth 1 ${repo} /tmp/app`, timeoutSec: 120 },
-        { label: "npm ci", command: "cd /tmp/app && npm ci --no-audit --no-fund", timeoutSec: 600 },
+        { label: "npm ci", command: "cd /tmp/app && npm ci --no-audit --no-fund", timeoutSec: 300 },
         { label: "npm test", command: "cd /tmp/app && npm test", timeoutSec: 300 },
         { label: "npm run typecheck", command: "cd /tmp/app && npm run typecheck", timeoutSec: 300 },
       ],

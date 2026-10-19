@@ -17,7 +17,8 @@
     "masky:setup": "tsx --env-file=.env.local scripts/masky-setup.ts",
     "phone:setup": "tsx --env-file=.env.local scripts/phone-setup.ts",
     "tunnel": "cloudflared tunnel --url http://localhost:3000",
-    "rocketride:check": "tsx --env-file=.env.local scripts/rocketride-check.ts"
+    "rocketride:check": "tsx --env-file=.env.local scripts/rocketride-check.ts",
+    "celesto:check": "tsx --env-file=.env.local scripts/celesto-check.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",

@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { Computer } from "@celestoai/sdk";
 import { recordUsage } from "../storage/repo";
 
@@ -19,12 +20,25 @@ export interface SandboxRun {
  */
 export async function runInSandbox(commands: Array<{ label: string; command: string; timeoutSec?: number }>, contractorId: string | null): Promise<SandboxRun[]> {
   const started = Date.now();
-  const computer = await Computer.create({ cpus: 2, memory: 2048 });
+  // Named template with its default size (the API rejects CPU/RAM overrides). It ships git, python and node.
+  // The API also requires an Idempotency-Key on creation, which SDK 0.1.6 does not send itself.
+  const computer = await Computer.create(
+    { templateId: process.env.CELESTO_TEMPLATE ?? "coding-agent" },
+    { headers: { "Idempotency-Key": crypto.randomUUID() } },
+  );
   const runs: SandboxRun[] = [];
   try {
+    // Creation returns while the VM is still booting; commands fail until it is running.
+    for (let waited = 0; computer.status !== "running"; waited += 2000) {
+      if (computer.status === "error") throw new Error(`Sandbox failed to start: ${computer.lastError ?? "unknown"}`);
+      if (waited > 180_000) throw new Error(`Sandbox still ${computer.status} after 3 minutes`);
+      await new Promise((r) => setTimeout(r, 2000));
+      await computer.refresh();
+    }
     for (const c of commands) {
       const t0 = Date.now();
-      const r = await computer.run(c.command, { timeout: c.timeoutSec ?? 120 });
+      // Celesto rejects command timeouts above 300 seconds.
+      const r = await computer.run(c.command, { timeout: Math.min(c.timeoutSec ?? 120, 300) });
       runs.push({ command: c.label, exitCode: r.exitCode, stdout: r.stdout ?? "", stderr: r.stderr ?? "", durationMs: Date.now() - t0 });
       if (r.exitCode !== 0) break;
     }

@@ -101,7 +101,7 @@
       <div class="card agent"><img src="agents/maya.png" alt="Maya"><div class="role" style="color:var(--maya)">CEO · Maya</div><p>Chooses the service plan from the CFO's numbers. Server code rejects any plan the owner has not approved.</p></div>
       <div class="card agent"><img src="agents/leo.png" alt="Leo"><div class="role" style="color:var(--leo)">COO · Leo</div><p>Researches the contractor's website, finds contradictions, and drafts the operating profile.</p></div>
       <div class="card agent"><img src="agents/nia.png" alt="Nia"><div class="role" style="color:var(--nia)">CFO · Nia</div><p>Costs every plan. Rejected "unlimited at $149" at 37% margin. Keeps job value apart from agency revenue.</p></div>
-      <div class="card agent"><img src="agents/arun.png" alt="Arun"><div class="role" style="color:var(--arun)">CTO · Arun</div><p>Validates every profile version (Celesto sandbox wired in). Blocked unconfirmed website prices.</p></div>
+      <div class="card agent"><img src="agents/arun.png" alt="Arun"><div class="role" style="color:var(--arun)">CTO · Arun</div><p>Validates every profile version, again in a Celesto sandbox. Blocked unconfirmed website prices.</p></div>
       <div class="card agent"><img src="agents/sam.png" alt="Sam"><div class="role" style="color:var(--sam)">Front Desk · Sam</div><p>Answers the phone, quotes, negotiates within limits, books real slots, and takes messages.</p></div>
     </div>
     <p class="small" style="margin-top:14px">Every agent has its own Masky avatar and Masky voice. Handoffs, decisions and evidence are visible in the owner's "Your AI team" view.</p>
@@ -183,9 +183,9 @@
       <tr><td><b>Masky</b></td><td>Avatars and voices for all five agents</td><td><span class="pill ok">live</span></td></tr>
       <tr><td><b>RocketRide</b></td><td>Pipelines that run the agents' reasoning (<code>.pipe</code> files in the repo)</td><td><span class="pill ok">live</span></td></tr>
       <tr><td><b>Flatkey</b></td><td>Claude model access behind RocketRide, plus direct failover</td><td><span class="pill ok">live</span></td></tr>
-      <tr><td><b>Celesto</b></td><td>The CTO's sandbox: an independent validator, and the test suite in a clean machine</td><td><span class="pill warn">wired, not connected</span></td></tr>
+      <tr><td><b>Celesto</b></td><td>The CTO's sandbox: an independent validator, and the test suite in a clean machine</td><td><span class="pill ok">live</span> validator + full test suite from GitHub, 48 s</td></tr>
       <tr><td><b>n8n</b></td><td>Booking → customer confirmation and contractor task workflow</td><td><span class="pill warn">wired, internal queue for now</span></td></tr>
-      <tr><td><b>Snyk</b></td><td>Dependency and code vulnerability scans</td><td><span class="pill warn">wired; npm audit used so far</span></td></tr>
+      <tr><td><b>Snyk</b></td><td>Dependency and code vulnerability scans</td><td><span class="pill ok">live</span> dependency scan: 0 issues (Snyk Code not enabled on the org)</td></tr>
       <tr><td><b>PromptQL</b></td><td>Operations wiki export from live data</td><td><span class="pill warn">manual export</span></td></tr>
     </table>
   </div>
