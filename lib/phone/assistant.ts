@@ -13,10 +13,11 @@ export function buildAssistant(profile: ContractorProfile) {
     ? { url: `${base}/api/vapi`, headers: { "x-vapi-secret": process.env.VAPI_SERVER_SECRET ?? "" } }
     : undefined;
   const s = profile.services[0];
-  const name = profile.businessName.replace(/\.$/, "");
+  // Spoken form: text-to-speech reads a trailing "Co." as "coat".
+  const name = profile.businessName.replace(/\bCo\.?$/, "Company").replace(/\.$/, "");
 
   const system = [
-    `You are Sam, the friendly phone receptionist for ${profile.businessName}. Today is ${localYmd(new Date(), profile.timeZone)} (${profile.timeZone}).`,
+    `You are Sam, the friendly phone receptionist for ${name}. Always say the business name as "${name}". Today is ${localYmd(new Date(), profile.timeZone)} (${profile.timeZone}).`,
     `What you know about the business (from the owner's approved profile): ${businessInfo(profile)}`,
     "How to work:",
     "- Keep replies short and natural: one or two sentences, then a question. You are on a phone call.",
