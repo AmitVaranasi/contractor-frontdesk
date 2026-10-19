@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { AddOn, ContractorProfile, OpenQuestion } from "../types";
-import { intakeFor } from "../fixtures";
+import { getIntake } from "../intakes";
 import { costWorksheet, ruleBasedPlanChoice } from "../finance";
 import { planById } from "../plans";
 import { think } from "../llm";
@@ -72,7 +72,7 @@ function say(contractorId: string, agent: Parameters<typeof logEvent>[0]["agent"
 }
 
 export async function runOnboarding(contractorId: string, opts: { websiteUrl?: string } = {}): Promise<OnboardingResult> {
-  const intake = intakeFor(contractorId);
+  const intake = getIntake(contractorId);
   if (!intake) throw new Error("Unknown contractor");
   upsertContractor({ id: intake.contractorId, slug: intake.slug, businessName: intake.businessName, trade: intake.trade });
   const steps: string[] = [];
@@ -82,11 +82,13 @@ export async function runOnboarding(contractorId: string, opts: { websiteUrl?: s
 
   // 1. COO researches the website.
   assertTool("leo", "research_business");
-  const researchTask = createTask({ contractorId, sender: "contractor", recipient: "leo", taskType: "research_business", requestedAction: `Research ${url} and draft a profile` });
+  const researchTask = createTask({ contractorId, sender: "contractor", recipient: "leo", taskType: "research_business", requestedAction: url ? `Research ${url} and draft a profile` : "Draft a profile from the owner's answers" });
   let page: FetchedPage | null = null;
   let research: Research = { priceClaims: [], serviceZips: [], hours: null, exclusions: [], pricingStatements: [] };
   let provider = "rules";
-  try {
+  if (!url) {
+    say(contractorId, "leo", "research.skipped", "No website given; building the profile from the owner's answers only", "There's no website to check, so I'll work from your answers.");
+  } else try {
     page = await fetchPage(url);
     const thought = await think({
       agent: "leo",
@@ -168,7 +170,7 @@ export async function runOnboarding(contractorId: string, opts: { websiteUrl?: s
     contractorId,
     "leo",
     "profile.drafted",
-    `Drafted profile v${draft.version} from intake + website (${provider}). ${contradictions.length} contradiction(s), ${injection.length ? "prompt-injection text flagged" : "no injection found"}.`,
+    url ? `Drafted profile v${draft.version} from intake + website (${provider}). ${contradictions.length} contradiction(s), ${injection.length ? "prompt-injection text flagged" : "no injection found"}.` : `Drafted profile v${draft.version} from the owner's answers (no website to cross-check)`,
     `I've drafted version ${draft.version}. The website disagrees with the intake form in ${contradictions.length} places, and I've kept the owner's numbers.${injection.length ? " The page also contains hidden instructions aimed at AI agents. I've flagged them and ignored them." : ""}`,
     { reportId, contradictions, injection },
     researchTask,

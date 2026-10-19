@@ -9,6 +9,24 @@ export interface QuoteInput {
   matchedUrgent: string[];
 }
 
+const GENERIC = new Set(["cleaning", "clean", "service", "services", "inside", "outside", "the", "and", "add", "addon", "extra", "with", "detailing", "repair"]);
+const stems = (s: string) =>
+  s
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .map((w) => w.replace(/(es|s)$/, ""))
+    .filter((w) => w.length >= 3 && !GENERIC.has(w));
+
+/** Match a caller's loose wording ("screens", "the oven") to an extra by id, name, or a shared distinctive word. */
+export function matchAddOn<T extends { id: string; name: string }>(addOns: T[], requested: string): T | undefined {
+  const r = requested.toLowerCase().trim();
+  if (r.length < 3 || stems(r).length === 0) return undefined; // only generic words, e.g. "cleaning"
+  const exact = addOns.find((a) => a.id === r || r.includes(a.id) || a.name.toLowerCase().includes(r) || r.includes(a.name.toLowerCase()));
+  if (exact) return exact;
+  const want = new Set(stems(r));
+  return addOns.find((a) => stems(`${a.id} ${a.name}`).some((w) => want.has(w)));
+}
+
 export function missingFields(service: ServiceDef, fields: CollectedFields): InquiryField[] {
   return service.requiredFields.filter((f) => {
     const v = fields[f];
@@ -63,9 +81,14 @@ export function calculateQuote({ profile, service, fields, matchedExclusions, ma
   const ruleVersion = `${profile.contractorId}@v${profile.version}/${service.id}`;
   const lines = [{ label: service.name, amountCents: service.basePriceCents, ruleRef: `${ruleVersion}/base` }];
   const declinedAddOns: string[] = [];
+  const charged = new Set<string>();
   for (const requested of fields.addOns ?? []) {
-    const addOn = service.addOns.find((a) => a.id === requested);
+    // Callers and voice models name extras loosely ("inside oven cleaning", "the oven"): match by id or name.
+    if (requested.trim().length < 3) continue;
+    const addOn = matchAddOn(service.addOns, requested);
+    if (addOn && charged.has(addOn.id)) continue; // same extra named twice is charged once
     if (addOn && addOn.enabled && addOn.source === "owner") {
+      charged.add(addOn.id);
       lines.push({ label: addOn.name, amountCents: addOn.priceCents, ruleRef: `${ruleVersion}/addon/${addOn.id}` });
     } else {
       declinedAddOns.push(addOn?.name ?? requested);

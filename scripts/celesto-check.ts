@@ -3,12 +3,12 @@
  *   npm run celesto:check            # profile validator only (fast)
  *   npm run celesto:check -- --repo  # also clone the GitHub repo and run the test suite
  */
-import { INTAKES } from "../lib/fixtures";
+import { allIntakes } from "../lib/intakes";
 import { activeProfile } from "../lib/storage/repo";
 import { ctoRunRepoChecks, ctoValidate } from "../lib/agents/cto";
 
 async function main() {
-  for (const i of INTAKES) {
+  for (const i of allIntakes()) {
     const p = activeProfile(i.contractorId);
     if (!p) continue;
     const t0 = Date.now();

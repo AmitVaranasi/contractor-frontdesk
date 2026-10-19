@@ -74,7 +74,8 @@ export interface ContractorProfile {
   contractorId: string;
   slug: string;
   businessName: string;
-  trade: "cleaning" | "plumbing";
+  /** Free-text trade, e.g. "cleaning", "plumbing", "window washing". */
+  trade: string;
   timeZone: string;
   serviceZips: string[];
   hours: { days: number[]; start: string; end: string };

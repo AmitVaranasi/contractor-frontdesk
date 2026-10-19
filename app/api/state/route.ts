@@ -1,4 +1,4 @@
-import { INTAKES } from "@/lib/fixtures";
+import { allIntakes } from "@/lib/intakes";
 import { ledger } from "@/lib/finance";
 import { listBookings, listFollowUps, reconcileFollowUps } from "@/lib/booking";
 import { listInquiries } from "@/lib/agents/frontdesk";
@@ -16,12 +16,13 @@ export const dynamic = "force-dynamic";
 export function GET(req: Request) {
   return handle(async () => {
     warmRocketRide();
-    for (const i of INTAKES) upsertContractor({ id: i.contractorId, slug: i.slug, businessName: i.businessName, trade: i.trade });
+    const intakes = allIntakes();
+    for (const i of intakes) upsertContractor({ id: i.contractorId, slug: i.slug, businessName: i.businessName, trade: i.trade });
     reconcileFollowUps();
     const url = new URL(req.url);
     const sinceId = Number(url.searchParams.get("since") ?? 0) || 0;
     return {
-      contractors: INTAKES.map((i) => ({
+      contractors: intakes.map((i) => ({
         id: i.contractorId,
         slug: i.slug,
         businessName: i.businessName,

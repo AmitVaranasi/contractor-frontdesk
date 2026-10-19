@@ -36,7 +36,7 @@ export const profileSchema = z.object({
   contractorId: z.string().min(1),
   slug: z.string().regex(/^[a-z0-9-]+$/),
   businessName: z.string().min(1),
-  trade: z.enum(["cleaning", "plumbing"]),
+  trade: z.string().min(1).max(60),
   timeZone: z.string().min(1),
   serviceZips: z.array(z.string().regex(/^\d{5}$/)).min(1),
   hours: z.object({

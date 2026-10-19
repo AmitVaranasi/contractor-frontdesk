@@ -1,4 +1,4 @@
-import { INTAKES } from "@/lib/fixtures";
+import { allIntakes } from "@/lib/intakes";
 import { planById } from "@/lib/plans";
 import { activeProfile, listTasks, latestProfile } from "@/lib/storage/repo";
 import { formatCents } from "@/lib/time";
@@ -6,7 +6,7 @@ import { formatCents } from "@/lib/time";
 /** Operations wiki as markdown, for import into the team's PromptQL shared workspace. */
 export function GET() {
   const parts = ["# Front desk operations wiki", "", `Generated ${new Date().toISOString()} from the live database.`, ""];
-  for (const i of INTAKES) {
+  for (const i of allIntakes()) {
     const p = activeProfile(i.contractorId) ?? latestProfile(i.contractorId);
     parts.push(`## ${i.businessName}`, "");
     if (!p) {

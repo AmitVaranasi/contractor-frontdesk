@@ -51,7 +51,17 @@ type SpeechRecognitionLike = {
  * Text/voice simulation of a phone call, for the owner to test their line
  * without spending phone minutes. Same engine and rules as the real line.
  */
-export function CallSimulator({ contractor }: { contractor: { id: string; slug: string; businessName: string; active: { timeZone: string } | null } }) {
+function genericSamples(active: { serviceZips?: string[]; services?: Array<{ name: string; mode: string; addOns?: Array<{ name: string; enabled: boolean }> }> } | null): string[] {
+  const svc = active?.services?.[0];
+  if (!svc) return [];
+  const zip = active?.serviceZips?.[0] ?? "94110";
+  const extra = svc.addOns?.find((a) => a.enabled)?.name.toLowerCase();
+  return svc.mode === "fixed"
+    ? [`Hi, I'd like to book ${svc.name.toLowerCase()}${extra ? ` with ${extra}` : ""} in ${zip}, next Tuesday if possible.`, "Hmm, that's more than I hoped. Can you do it cheaper?", `What do you not do? And are you open on weekends?`]
+    : [`Hi, I've got a problem I need looked at in ${zip}. I'm home all day, can someone come next Tuesday? How much will it cost?`, "Can you give me a rough price over the phone?"];
+}
+
+export function CallSimulator({ contractor }: { contractor: { id: string; slug: string; businessName: string; active: ({ timeZone: string } & Parameters<typeof genericSamples>[0]) | null } }) {
   const slug = contractor.slug;
   const [inquiryId, setInquiryId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -207,7 +217,7 @@ export function CallSimulator({ contractor }: { contractor: { id: string; slug: 
       <div className="space-y-4">
         <div className="card space-y-2 p-4">
           <div className="text-sm font-semibold">Sample caller lines</div>
-          {(SAMPLES[slug] ?? []).map((s) => (
+          {(SAMPLES[slug] ?? genericSamples(contractor.active)).map((s) => (
             <button key={s} className="block w-full rounded-lg border border-line p-2 text-left text-xs hover:bg-bg" disabled={busy || !active} onClick={() => send(s)}>
               {s}
             </button>

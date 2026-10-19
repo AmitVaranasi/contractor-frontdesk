@@ -10,6 +10,8 @@ import { BusinessEditor } from "@/components/BusinessEditor";
 import { BusinessPicker } from "@/components/BusinessPicker";
 import { useBusiness } from "@/components/useBusiness";
 import { safeHref } from "@/lib/safeUrl";
+import { NewBusinessForm } from "@/components/NewBusinessForm";
+import { CalendarConnect } from "@/components/CalendarConnect";
 import type { AgentId, ContractorProfile } from "@/lib/types";
 
 const money = (c: number | null) => (c === null ? "—" : `$${(c / 100).toFixed(2)}`);
@@ -22,6 +24,7 @@ export default function SetupPage() {
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<string[]>([]);
   const [voices, setVoices] = useState(true);
+  const [adding, setAdding] = useState(false);
   const spokenUpTo = useRef<number | null>(null);
 
   const contractor = state?.contractors.find((c: { id: string }) => c.id === selected);
@@ -99,9 +102,23 @@ export default function SetupPage() {
         </div>
       </div>
 
-      <BusinessPicker contractors={state.contractors} value={selected} onChange={setSelected} />
+      <div className="flex flex-wrap items-center gap-2">
+        <BusinessPicker contractors={state.contractors} value={selected} onChange={(id) => { setSelected(id); setAdding(false); }} />
+        <button className={`btn ${adding ? "" : "btn-ghost"}`} onClick={() => setAdding(true)}>+ Add your business</button>
+      </div>
 
-      {contractor && (
+      {adding && (
+        <NewBusinessForm
+          onCancel={() => setAdding(false)}
+          onDone={(id) => {
+            setAdding(false);
+            setSelected(id);
+            refresh();
+          }}
+        />
+      )}
+
+      {contractor && !adding && (
         <div className="grid gap-6 lg:grid-cols-[1fr_1.3fr]">
           <div className="space-y-4">
             <div className="card space-y-3 p-5">
@@ -150,6 +167,14 @@ export default function SetupPage() {
               <div className="card flex items-center justify-between gap-3 bg-ok-soft p-4 text-sm">
                 <span className="text-ok">v{contractor.active.version} is live. Sam answers your phone with it.</span>
                 <Link href="/phone" className="btn">Phone line →</Link>
+              </div>
+            )}
+
+            {contractor.active && (
+              <div className="card space-y-2 p-5">
+                <div className="text-sm font-semibold">Calendar</div>
+                <p className="text-xs text-muted">Sam checks your calendar on every call and adds each booking to it.</p>
+                <CalendarConnect contractorId={contractor.id} connection={contractor.calendar?.connection ?? null} defaultAccount={contractor.active.escalationContact} onChange={refresh} />
               </div>
             )}
           </div>

@@ -3,7 +3,7 @@
  *   npm run phone:setup
  * Needs VAPI_API_KEY, VAPI_SERVER_SECRET and PUBLIC_BASE_URL in .env.local.
  */
-import { INTAKES } from "../lib/fixtures";
+import { allIntakes } from "../lib/intakes";
 import { activeProfile } from "../lib/storage/repo";
 import { listPhoneNumbers, routeNumberToServer, syncAssistant, vapiConfigured } from "../lib/phone/vapiApi";
 
@@ -24,7 +24,7 @@ async function main() {
   await routeNumberToServer(target.id);
   console.log(`✓ ${target.number ?? target.id} now asks ${process.env.PUBLIC_BASE_URL}/api/vapi for its assistant on every call.`);
 
-  for (const i of INTAKES) {
+  for (const i of allIntakes()) {
     const p = activeProfile(i.contractorId);
     if (!p) {
       console.log(`- ${i.businessName}: not active yet (approve it in Business setup), skipped`);

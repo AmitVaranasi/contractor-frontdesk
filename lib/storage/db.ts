@@ -150,6 +150,11 @@ CREATE TABLE IF NOT EXISTS calendar_events (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_calendar_contractor ON calendar_events(contractor_id, start_at);
+CREATE TABLE IF NOT EXISTS intakes (
+  contractor_id TEXT PRIMARY KEY,
+  json TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS kv (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
