@@ -3,6 +3,7 @@ import { activeProfile, logEvent } from "@/lib/storage/repo";
 import { buildAssistant } from "@/lib/phone/assistant";
 import { ensureCall, finishCall, getCall, lineContractor } from "@/lib/phone/calls";
 import { runTool } from "@/lib/phone/tools";
+import { createCallRecap } from "@/lib/phone/recap";
 
 export const maxDuration = 60;
 
@@ -97,6 +98,8 @@ export async function POST(req: Request) {
       costUsd: typeof m.cost === "number" ? m.cost : undefined,
       durationSec: m.durationSeconds,
     });
+    // Render the owner's Masky recap in the background; Vapi only needs a quick 200.
+    void createCallRecap(callId);
     logEvent({ contractorId, agent: "sam", type: "call.ended", summary: `Call ended (${m.endedReason ?? "unknown"})${m.analysis?.summary ? `: ${m.analysis.summary.slice(0, 160)}` : ""}`, data: { callId } });
     return Response.json({ ok: true });
   }

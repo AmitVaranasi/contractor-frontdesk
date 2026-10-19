@@ -5,6 +5,9 @@ import { useState } from "react";
 import { useAppState } from "@/components/useAppState";
 import { useBusiness } from "@/components/useBusiness";
 import { BusinessPicker } from "@/components/BusinessPicker";
+import { CallRecap } from "@/components/CallRecap";
+import { CalendarWeek } from "@/components/CalendarWeek";
+import { CalendarConnect } from "@/components/CalendarConnect";
 
 interface Booking {
   id: string;
@@ -33,6 +36,8 @@ interface Call {
   cost_usd: number | null;
   started_at: string;
   transcript: string | null;
+  recap_status: string | null;
+  recap_text: string | null;
 }
 
 const STATUS_TONE: Record<string, string> = {
@@ -141,6 +146,17 @@ export default function Dashboard() {
         )}
       </section>
 
+      {c.active && (
+        <section className="card space-y-3 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-sm font-semibold">Calendar · next 2 weeks</div>
+            <CalendarConnect contractorId={c.id} connection={c.calendar.connection} defaultAccount={c.active.escalationContact} onChange={() => undefined} />
+          </div>
+          <CalendarWeek events={c.calendar.events} hours={c.active.hours} timeZone={tz} />
+          {!c.calendar.connection && <p className="text-xs text-muted">Connect your calendar so Sam never offers a time you&apos;re already busy.</p>}
+        </section>
+      )}
+
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="card overflow-hidden">
           <div className="border-b border-line p-3 text-sm font-semibold">Recent calls</div>
@@ -157,6 +173,11 @@ export default function Dashboard() {
                   </div>
                   <p className="mt-1">{call.summary ?? (call.status === "ended" ? "No summary." : "In progress…")}</p>
                 </button>
+                {call.status === "ended" && (
+                  <div className="mt-2">
+                    <CallRecap callId={call.id} status={call.recap_status} text={call.recap_text} />
+                  </div>
+                )}
                 {openCall === call.id && (
                   <div className="mt-2 space-y-2">
                     {call.recording_url && <audio controls src={call.recording_url} className="w-full" />}

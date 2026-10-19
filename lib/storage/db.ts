@@ -139,6 +139,17 @@ CREATE TABLE IF NOT EXISTS calls (
   started_at TEXT NOT NULL,
   ended_at TEXT
 );
+CREATE TABLE IF NOT EXISTS calendar_events (
+  id TEXT PRIMARY KEY,
+  contractor_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  start_at TEXT NOT NULL,
+  end_at TEXT NOT NULL,
+  source TEXT NOT NULL,
+  booking_id TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_calendar_contractor ON calendar_events(contractor_id, start_at);
 CREATE TABLE IF NOT EXISTS kv (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
@@ -158,6 +169,10 @@ function openDb(): DatabaseSync {
   // Additive migrations for databases created by earlier builds.
   const cols = (db.prepare("PRAGMA table_info(quotes)").all() as Array<{ name: string }>).map((c) => c.name);
   if (!cols.includes("conditions_json")) db.exec("ALTER TABLE quotes ADD COLUMN conditions_json TEXT NOT NULL DEFAULT '{}'");
+  const callCols = (db.prepare("PRAGMA table_info(calls)").all() as Array<{ name: string }>).map((c) => c.name);
+  for (const [col, type] of [["recap_status", "TEXT"], ["recap_text", "TEXT"], ["recap_turn_id", "TEXT"], ["recap_live_url", "TEXT"]]) {
+    if (!callCols.includes(col)) db.exec(`ALTER TABLE calls ADD COLUMN ${col} ${type}`);
+  }
   return db;
 }
 

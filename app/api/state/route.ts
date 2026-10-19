@@ -7,6 +7,7 @@ import { liveProviders } from "@/lib/llm";
 import { activeProfile, latestProfile, listEvents, listEvidence, listTasks, profileHistory, upsertContractor, usageSummary } from "@/lib/storage/repo";
 import { handle } from "@/lib/http";
 import { warmRocketRide } from "@/lib/adapters/rocketride";
+import { calendarConnection, listCalendarEvents } from "@/lib/calendar";
 import { lineContractor, listCalls } from "@/lib/phone/calls";
 import { savedAssistantId, vapiConfigured } from "@/lib/phone/vapiApi";
 
@@ -35,6 +36,10 @@ export function GET(req: Request) {
         inquiries: listInquiries(i.contractorId),
         ledger: ledger(i.contractorId),
         calls: listCalls(i.contractorId),
+        calendar: {
+          connection: calendarConnection(i.contractorId),
+          events: listCalendarEvents(i.contractorId, new Date(Date.now() - 86_400_000).toISOString(), new Date(Date.now() + 14 * 86_400_000).toISOString()),
+        },
         vapiAssistantId: savedAssistantId(i.contractorId),
       })),
       phone: {

@@ -232,15 +232,15 @@
 
 <script>
   (function () {
-    var KEY = "deck-theme";
+    var STORAGE_NAME = "deck-theme";
     var root = document.documentElement;
-    try { var saved = localStorage.getItem(KEY); if (saved) root.setAttribute("data-theme", saved); } catch (e) {}
+    try { var saved = localStorage.getItem(STORAGE_NAME); if (saved) root.setAttribute("data-theme", saved); } catch (e) {}
     document.getElementById("theme").addEventListener("click", function () {
       var dark = root.getAttribute("data-theme") === "dark" ||
         (!root.getAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
       var next = dark ? "light" : "dark";
       root.setAttribute("data-theme", next);
-      try { localStorage.setItem(KEY, next); } catch (e) {}
+      try { localStorage.setItem(STORAGE_NAME, next); } catch (e) {}
     });
   })();
 </script>

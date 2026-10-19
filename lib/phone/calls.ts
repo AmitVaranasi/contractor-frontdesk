@@ -24,6 +24,10 @@ export interface CallRow {
   cost_usd: number | null;
   started_at: string;
   ended_at: string | null;
+  recap_status?: string | null;
+  recap_text?: string | null;
+  recap_turn_id?: string | null;
+  recap_live_url?: string | null;
 }
 
 export function getCall(id: string): CallRow | undefined {

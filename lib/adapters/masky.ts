@@ -61,6 +61,33 @@ async function conversationFor(agent: AgentId): Promise<{ conversationId: string
 export interface SpokenMedia {
   audioUrl: string | null;
   videoUrl: string | null;
+  /** Lets callers re-read fresh signed URLs later (they expire after ~1 hour). */
+  turnId?: string;
+  /** Permanent Masky player for this turn. */
+  liveUrl?: string | null;
+}
+
+interface TurnState {
+  id: string;
+  status: string;
+  audioUrl?: string;
+  videoUrl?: string;
+  errorMessage?: string;
+  shareSlug?: string;
+  liveUrl?: string;
+}
+
+async function readTurn(agent: AgentId, turnId: string): Promise<TurnState | undefined> {
+  const conv = await conversationFor(agent);
+  const state = await masky<{ turns: TurnState[] }>("GET", `/conversations/by-slug/${conv.shareSlug}`);
+  return state.turns.find((x) => x.id === turnId);
+}
+
+/** Fresh media URLs for an earlier turn (signed URLs expire after about an hour). */
+export async function turnMedia(agent: AgentId, turnId: string): Promise<SpokenMedia | null> {
+  const t = await readTurn(agent, turnId);
+  if (!t) return null;
+  return { audioUrl: t.audioUrl ?? null, videoUrl: t.videoUrl ?? null, turnId, liveUrl: t.liveUrl ?? (t.shareSlug ? `https://masky.ai/live/${t.shareSlug}` : null) };
 }
 
 export async function speak(agent: AgentId, text: string, output: "audio" | "video", contractorId: string | null): Promise<SpokenMedia> {
@@ -73,14 +100,10 @@ export async function speak(agent: AgentId, text: string, output: "audio" | "vid
     mode: "speak",
   });
 
-  const deadline = Date.now() + (output === "video" ? 90_000 : 25_000);
+  const deadline = Date.now() + (output === "video" ? 180_000 : 25_000);
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 2000));
-    const state = await masky<{ turns: Array<{ id: string; status: string; audioUrl?: string; videoUrl?: string; errorMessage?: string }> }>(
-      "GET",
-      `/conversations/by-slug/${conv.shareSlug}`,
-    );
-    const t = state.turns.find((x) => x.id === turn.id);
+    const t = await readTurn(agent, turn.id);
     if (t?.status === "error") throw new Error(`Masky turn failed: ${t.errorMessage ?? "unknown"}`);
     const done = output === "video" ? t?.videoUrl : t?.audioUrl;
     if (done) {
@@ -97,7 +120,7 @@ export async function speak(agent: AgentId, text: string, output: "audio" | "vid
         costBasis: "estimated",
         live: true,
       });
-      return { audioUrl: t?.audioUrl ?? null, videoUrl: t?.videoUrl ?? null };
+      return { audioUrl: t?.audioUrl ?? null, videoUrl: t?.videoUrl ?? null, turnId: turn.id, liveUrl: t?.liveUrl ?? (t?.shareSlug ? `https://masky.ai/live/${t.shareSlug}` : null) };
     }
   }
   throw new Error("Masky media not ready before timeout");

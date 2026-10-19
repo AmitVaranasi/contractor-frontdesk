@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const KEY = "portal:business";
+const STORAGE_NAME = "portal:business";
 
 /** The owner's selected business, remembered per browser (demo has two). */
 export function useBusiness(defaultId = "ctr_sparkle") {
@@ -10,7 +10,7 @@ export function useBusiness(defaultId = "ctr_sparkle") {
   useEffect(() => {
     const t = setTimeout(() => {
       try {
-        const saved = localStorage.getItem(KEY);
+        const saved = localStorage.getItem(STORAGE_NAME);
         if (saved) setId(saved);
       } catch {
         /* storage unavailable */
@@ -21,7 +21,7 @@ export function useBusiness(defaultId = "ctr_sparkle") {
   const choose = (next: string) => {
     setId(next);
     try {
-      localStorage.setItem(KEY, next);
+      localStorage.setItem(STORAGE_NAME, next);
     } catch {
       /* storage unavailable */
     }

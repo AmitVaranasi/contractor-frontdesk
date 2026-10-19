@@ -9,6 +9,7 @@ import { ROLES } from "@/lib/agents/roles";
 import { BusinessEditor } from "@/components/BusinessEditor";
 import { BusinessPicker } from "@/components/BusinessPicker";
 import { useBusiness } from "@/components/useBusiness";
+import { safeHref } from "@/lib/safeUrl";
 import type { AgentId, ContractorProfile } from "@/lib/types";
 
 const money = (c: number | null) => (c === null ? "—" : `$${(c / 100).toFixed(2)}`);
@@ -119,7 +120,7 @@ export default function SetupPage() {
                   onChange={(e) => setUrl({ ...url, [selected]: e.target.value })}
                 />
                 <span className="text-xs text-muted">
-                  Default is a bundled fictional site (<a className="underline" href={contractor.websitePath} target="_blank">view</a>). It contains a hidden prompt-injection line.
+                  Default is a bundled fictional site (<a className="underline" href={safeHref(contractor.websitePath)} target="_blank" rel="noreferrer">view</a>). It contains a hidden prompt-injection line.
                 </span>
               </label>
               <button className="btn" onClick={run} disabled={running}>

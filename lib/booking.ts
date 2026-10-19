@@ -2,6 +2,7 @@ import type { ContractorProfile, ServiceDef, Slot } from "./types";
 import { getDb, newId, nowIso, parseJson, transaction } from "./storage/db";
 import { activeProfile, getProfileVersion } from "./storage/repo";
 import { addDaysYmd, formatCents, formatLocal, localWeekday, localYmd, zonedToUtc } from "./time";
+import { externalBusy, mirrorBooking } from "./calendar";
 
 export const RESOURCE_ID = "crew-1";
 
@@ -32,7 +33,8 @@ function busyIntervals(contractorId: string, resourceId: string): BusyInterval[]
   const rows = getDb()
     .prepare("SELECT start_at, end_at FROM bookings WHERE contractor_id = ? AND resource_id = ? AND status = 'confirmed'")
     .all(contractorId, resourceId) as Array<{ start_at: string; end_at: string }>;
-  return rows.map((r) => ({ start: Date.parse(r.start_at), end: Date.parse(r.end_at) }));
+  // The owner's own calendar commitments block slots too (free/busy).
+  return [...rows.map((r) => ({ start: Date.parse(r.start_at), end: Date.parse(r.end_at) })), ...externalBusy(contractorId)];
 }
 
 /** Eligible slots for a service, honouring hours, duration, buffer, lead time and existing bookings. */
@@ -220,6 +222,7 @@ export function createBooking(args: {
        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(booking.id, booking.contractor_id, booking.inquiry_id, booking.quote_id, booking.kind, booking.resource_id, booking.start_at, booking.end_at, booking.status, booking.idempotency_key, booking.created_at);
     db.prepare("UPDATE inquiries SET status = 'booked', updated_at = ? WHERE id = ?").run(nowIso(), args.inquiryId);
+    mirrorBooking(args.contractorId, booking.id, booking.start_at, booking.end_at, kind === "job" ? `${service.name} (Front Desk)` : `Assessment (Front Desk)`);
 
     const when = formatLocal(slot.startAt, profile.timeZone);
     const summary =
