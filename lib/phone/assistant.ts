@@ -1,5 +1,5 @@
 import type { ContractorProfile } from "../types";
-import { localYmd } from "../time";
+import { addDaysYmd, localWeekday, localYmd } from "../time";
 import { businessInfo, TOOL_DEFS } from "./tools";
 
 /**
@@ -16,8 +16,17 @@ export function buildAssistant(profile: ContractorProfile) {
   // Spoken form: text-to-speech reads a trailing "Co." as "coat".
   const name = profile.businessName.replace(/\bCo\.?$/, "Company").replace(/\.$/, "");
 
+  const today = localYmd(new Date(), profile.timeZone);
+  const DAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const calendar = Array.from({ length: 14 }, (_, i) => {
+    const d = addDaysYmd(today, i);
+    const day = DAY[localWeekday(d)];
+    return `${i === 0 ? `today (${day})` : i === 1 ? `tomorrow (${day})` : i < 7 ? day : `following ${day}`} = ${d}`;
+  }).join("; ");
+
   const system = [
-    `You are Sam, the friendly phone receptionist for ${name}. Always say the business name as "${name}". Today is ${localYmd(new Date(), profile.timeZone)} (${profile.timeZone}).`,
+    `You are Sam, the friendly phone receptionist for ${name}. Always say the business name as "${name}". Today is ${DAY[localWeekday(today)]} ${today} (${profile.timeZone}).`,
+    `Calendar for the next two weeks (use it; never calculate dates yourself): ${calendar}. "Next Monday" means the first Monday after today.`,
     `What you know about the business (from the owner's approved profile): ${businessInfo(profile)}`,
     "How to work:",
     "- Keep replies short and natural: one or two sentences, then a question. You are on a phone call.",
@@ -39,7 +48,13 @@ export function buildAssistant(profile: ContractorProfile) {
       provider: process.env.VAPI_MODEL_PROVIDER ?? "anthropic",
       model: process.env.VAPI_MODEL ?? "claude-sonnet-5",
       messages: [{ role: "system", content: system }],
-      tools: TOOL_DEFS.map((t) => ({ type: "function", function: t, ...(server ? { server } : {}) })),
+      tools: TOOL_DEFS.map((t) => ({
+        type: "function",
+        function: t,
+        // Speak immediately while the tool runs, so the caller never hears dead air.
+        messages: t.name === "get_business_info" ? [] : [{ type: "request-start", content: "One moment, let me check that." }],
+        ...(server ? { server } : {}),
+      })),
     },
     ...(process.env.VAPI_VOICE_PROVIDER && process.env.VAPI_VOICE_ID ? { voice: { provider: process.env.VAPI_VOICE_PROVIDER, voiceId: process.env.VAPI_VOICE_ID } } : {}),
     ...(server ? { server } : {}),

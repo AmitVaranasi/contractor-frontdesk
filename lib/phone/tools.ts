@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { ContractorProfile } from "../types";
 import { BookingError } from "../booking";
 import { bookInquiry } from "../agents/bookingFlow";
-import { appendTranscript, evaluate, getInquiry, keywordMatch, mergeFields, negotiatePrice, openInquiry, slotsForInquiry } from "../agents/frontdesk";
+import { appendTranscript, evaluate, getInquiry, keywordMatch, mergeFields, negotiatePrice, openInquiry, parseDate, slotsForInquiry } from "../agents/frontdesk";
 import { activeProfile, completeTask, createTask, logEvent } from "../storage/repo";
 import { formatCents, formatLocal } from "../time";
 import { getCall, setCallInquiry } from "./calls";
@@ -29,7 +29,7 @@ export const TOOL_DEFS = [
         zip: { type: "string", description: "5-digit ZIP of the property" },
         bedrooms: { type: "number" },
         bathrooms: { type: "number" },
-        preferred_date: { type: "string", description: "YYYY-MM-DD in the business's time zone" },
+        preferred_date: { type: "string", description: "The date the caller wants: YYYY-MM-DD, or their exact words (e.g. 'next Monday', 'tomorrow'). Never ask the caller for a numeric date." },
         issue: { type: "string", description: "What is wrong, in the caller's words (plumbing)" },
         access: { type: "string", description: "How the contractor gets in (plumbing)" },
         add_ons: { type: "array", items: { type: "string" }, description: "Extras requested, e.g. oven, fridge" },
@@ -130,7 +130,9 @@ export async function runTool(args: { contractorId: string; callId: string; call
       if (!a.success) return "Invalid arguments. Ask the caller to repeat the details.";
       const inquiry = inquiryForCall(args.contractorId, args.callId, args.caller);
       const s = profile.services[0];
-      const fields = mergeFields(inquiry.collected, { ...a.data, addOns: a.data.add_ons, customer_phone: args.caller ?? undefined });
+      // Accept spoken dates ("next Monday") so the voice model never has to do date arithmetic.
+      const date = a.data.preferred_date && !/^\d{4}-\d{2}-\d{2}$/.test(a.data.preferred_date) ? parseDate(a.data.preferred_date.replace(/\b(next|coming|this)\s+(coming\s+)?/gi, ""), tz) : a.data.preferred_date;
+      const fields = mergeFields(inquiry.collected, { ...a.data, preferred_date: date, addOns: a.data.add_ons, customer_phone: args.caller ?? undefined });
       const said = [...(a.data.reported_conditions ?? []), a.data.issue ?? ""].join(". ");
       const ev = evaluate({
         contractorId: args.contractorId,
